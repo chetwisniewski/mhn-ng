@@ -1,17 +1,18 @@
 from urlparse import urljoin
 
 from flask import Flask, request, jsonify, abort, url_for, session
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.security import Security, SQLAlchemyUserDatastore
-from flask.ext.security.utils import encrypt_password as encrypt
-from flask.ext.mail import Mail
+from flask_sqlalchemy import SQLAlchemy
+from flask_security import Security, SQLAlchemyUserDatastore
+from flask_security.utils import encrypt_password as encrypt
+from flask_mail import Mail
 from werkzeug.contrib.atom import AtomFeed
 import xmltodict
 import uuid
 import random
 import string
-from flask_wtf.csrf import CsrfProtect
-csrf = CsrfProtect()
+from flask_wtf.csrf import CSRFProtect
+
+csrf = CSRFProtect()
 
 db = SQLAlchemy()
 # After defining `db`, import auth models due to
@@ -92,7 +93,7 @@ def get_feed():
     from mhn.common.clio import Clio
     from mhn.auth import current_user
     authfeed = mhn.config['FEED_AUTH_REQUIRED']
-    if authfeed and not current_user.is_authenticated():
+    if authfeed and not current_user.is_authenticated:
         abort(404)
     feed = AtomFeed('MHN HpFeeds Report', feed_url=request.url,
                     url=request.url_root)
@@ -138,7 +139,7 @@ def create_clean_db():
         #|-- deploy_kippo.sh
         deployscripts = [
             ['Ubuntu - Conpot', '../scripts/deploy_conpot.sh'],
-            ['Ubuntu - Drupot', '../scripts/deploy_drupot.sh'],
+            ['Ubuntu/Raspberry Pi - Drupot', '../scripts/deploy_drupot.sh'],
             ['Ubuntu - Wordpot', '../scripts/deploy_wordpot.sh'],
             ['Ubuntu - Shockpot', '../scripts/deploy_shockpot.sh'],
             ['Ubuntu - p0f', '../scripts/deploy_p0f.sh'],
@@ -148,9 +149,7 @@ def create_clean_db():
             ['Ubuntu - Amun', '../scripts/deploy_amun.sh'],
             ['Ubuntu - Snort', '../scripts/deploy_snort.sh'],
             ['Ubuntu - Cowrie', '../scripts/deploy_cowrie.sh'],
-            ['Ubuntu 14.04/Centos 7 - Dionaea', '../scripts/deploy_dionaea.sh'],
-            ['Raspberry Pi - Dionaea', '../scripts/deploy_raspberrypi.sh'],
-            ['Ubuntu - Dionaea with HTTP', '../scripts/deploy_dionaea_http.sh'],
+            ['Ubuntu/Raspberry Pi - Dionaea', '../scripts/deploy_dionaea.sh'],
             ['Ubuntu - Shockpot Sinkhole', '../scripts/deploy_shockpot_sinkhole.sh'],
         ]
         for honeypot, deploypath in reversed(deployscripts):

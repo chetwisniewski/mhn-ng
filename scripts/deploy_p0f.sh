@@ -1,14 +1,34 @@
 #!/bin/bash
 
+INTERFACE=$(basename -a /sys/class/net/e*)
+
+
 set -e
 set -x
 
 if [ $# -ne 2 ]
     then
-        echo "Wrong number of arguments supplied."
-        echo "Usage: $0 <server_url> <deploy_key>."
+        if [ $# -eq 3 ]
+          then
+            INTERFACE=$3
+          else
+            echo "Wrong number of arguments supplied."
+            echo "Usage: $0 <server_url> <deploy_key>."
+            exit 1
+        fi
+
+fi
+
+compareint=$(echo "$INTERFACE" | wc -w)
+
+
+if [ "$INTERFACE" = "e*" ] || [ "$compareint" -ne 1 ]
+    then
+        echo "No Interface selectable, please provide manually."
+        echo "Usage: $0 <server_url> <deploy_key> <INTERFACE>"
         exit 1
 fi
+
 
 server_url=$1
 deploy_key=$2
@@ -30,6 +50,9 @@ wget $server_url/static/registration.txt -O registration.sh
 chmod 755 registration.sh
 # Note: this will export the HPF_* variables
 . ./registration.sh $server_url $deploy_key "p0f"
+
+# Note: This will change the interface in the p0f config
+sed -i "s/INTERFACE=eth0/INTERFACE=$INTERFACE/" /opt/p0f/p0f_wrapper.sh
 
 cat > /etc/supervisor/conf.d/p0f.conf <<EOF
 [program:p0f]

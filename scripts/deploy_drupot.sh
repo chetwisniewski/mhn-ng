@@ -14,11 +14,16 @@ deploy_key=$2
 apt-get update
 apt-get -y install git supervisor
 
+####################################################################
+# Install a decent version of golang
 if [ "$(uname -m)" == "x86_64" ] ;
 then
-    GO_PACKAGE="go1.12.1.linux-amd64.tar.gz"
+    GO_PACKAGE="go1.12.6.linux-amd64.tar.gz"
+elif [ "$(uname -m)" == "armv7l" ] || [ "$(uname -m)" == "armv6l" ];
+then
+    GO_PACKAGE="go1.12.6.linux-armv6l.tar.gz"
 else
-    GO_PACKAGE="go1.12.1.linux-386.tar.gz"
+    GO_PACKAGE="go1.12.6.linux-386.tar.gz"
 fi
 
 cd /usr/local/
@@ -31,14 +36,15 @@ do
     echo $X; 
     ln -s $X; 
 done
+####################################################################
 
+export GO111MODULE=on
 
 # Get the drupot source
 cd /opt
 git clone https://github.com/d1str0/drupot.git
 cd drupot
-
-export GO111MODULE=on
+git checkout v0.2.3
 
 go build
 
@@ -46,7 +52,7 @@ go build
 wget $server_url/static/registration.txt -O registration.sh
 chmod 755 registration.sh
 # Note: this will export the HPF_* variables
-. ./registration.sh $server_url $deploy_key "drupot"
+. ./registration.sh $server_url $deploy_key "agave"
 
 cat > config.toml<<EOF
 # Drupot Configuration File
@@ -56,12 +62,8 @@ cat > config.toml<<EOF
 # Note: Ports under 1024 require sudo.
 port = 80
 
-# Allows you to choose which changelog file to return to spoof different versions.
-# Always served as "http[s]://server/CHANGELOG.txt"
-changelog_filepath = "changelogs/CHANGELOG-7.63.txt"
-
-# Either 8.6 or 7.63
-version = "8.6"
+site_name = "Nothing"
+name_randomizer = true
 
 # TODO: Optional SSL/TLS Cert
 
@@ -71,10 +73,7 @@ host = "$HPF_HOST"
 port = $HPF_PORT
 ident = "$HPF_IDENT"
 auth = "$HPF_SECRET"
-channel = "drupot.events"
-
-# Meta data to be provided with each request phoned home
-meta = "Drupal scan event detected"
+channel = "agave.events"
 
 [fetch_public_ip]
 enabled = true
@@ -85,7 +84,7 @@ EOF
 # Config for supervisor.
 cat > /etc/supervisor/conf.d/drupot.conf <<EOF
 [program:drupot]
-command=/opt/drupot/Drupot
+command=/opt/drupot/drupot
 directory=/opt/drupot
 stdout_logfile=/opt/drupot/drupot.out
 stderr_logfile=/opt/drupot/drupot.err
@@ -97,4 +96,5 @@ EOF
 
 supervisorctl update
 supervisorctl restart all
+
 
