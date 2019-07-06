@@ -1,4 +1,4 @@
-Brief temporary note concerning the purpose of this fork. For a project, I recently attempted to use the parent project from threatstream to deploy a reasnably modern honeynet, but met with a lot of legacy issues with the project. I hope to modernize much of the scripts and code to work with up to date versions of the projects mhn depends on and submit the pull requests upstream for potential inclusion in the parent project.
+Brief temporary note concerning the purpose of this fork. For a project, I recently attempted to use the parent project from threatstream to deploy a reasonably modern honeynet, but met with a lot of legacy issues with the project. I hope to modernize much of the scripts and code to work with up to date versions of the projects mhn depends on and submit the pull requests upstream for potential inclusion in the parent project.
 
 Modern Honey Network
 ====================
